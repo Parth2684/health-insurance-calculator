@@ -1,0 +1,7 @@
+.input {
+  @apply w-full p-3 bg-gray-800 bg-opacity-40 text-white rounded-lg border border-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all;
+}
+
+.btn {
+  @apply w-full bg-purple-600 hover:bg-purple-700 text-white p-3 rounded-lg transition-all font-bold shadow-md transform hover:scale-105;
+}
