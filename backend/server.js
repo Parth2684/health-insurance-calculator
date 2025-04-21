@@ -17,23 +17,17 @@ app.post('/predict', async (req, res) => {
     
     const sex_female = sex === 'female' ? 1 : 0;
     const sex_male = sex === 'male' ? 1 : 0;
-    
-    // For smoker (assuming original values were 'yes' and 'no')
     const smoker_no = smoker === 'no' ? 1 : 0;
     const smoker_yes = smoker === 'yes' ? 1 : 0;
-    
-    // For region (all four possible values)
     const region_northeast = region === 'northeast' ? 1 : 0;
     const region_northwest = region === 'northwest' ? 1 : 0;
     const region_southeast = region === 'southeast' ? 1 : 0;
     const region_southwest = region === 'southwest' ? 1 : 0;
 
-    // Create input array in exactly the same order as during training
     const inputArray = [
       age,
       bmi,
       children,
-      // Include all one-hot encoded columns in the same order as in training
       sex_female, 
       sex_male,
       smoker_no,
@@ -42,7 +36,6 @@ app.post('/predict', async (req, res) => {
       region_northwest,
       region_southeast,
       region_southwest,
-      // Then add custom features that weren't in the original dataset
       income
     ];
     
@@ -58,16 +51,29 @@ app.post('/predict', async (req, res) => {
     const results = await session.run(feeds);
     const prediction = results.variable.data[0]*10;
 
-    // tax: 18% of base premium
     const tax = prediction * 0.18;
     const totalWithTax = prediction + tax;
     const yearlyPayment = totalWithTax / policy_term;
+
+    // 🔥 Claimable Amount Logic
+    let riskMultiplier = 1;
+
+    if (smoker === 'yes') riskMultiplier += 0.3;
+    if (age >= 45) riskMultiplier += 0.25;
+    else if (age >= 30) riskMultiplier += 0.1;
+    if (bmi < 18.5 || bmi > 30) riskMultiplier += 0.2;
+    if (children >= 3) riskMultiplier += 0.15;
+    if (policy_term >= 10) riskMultiplier += 0.1;
+    if (income > 1000000) riskMultiplier += 0.15;
+
+    const claimableAmount = Math.min(totalWithTax * 0.8 * riskMultiplier, totalWithTax);
 
     res.json({
       base_premium: prediction.toFixed(2),
       tax: tax.toFixed(2),
       total: totalWithTax.toFixed(2),
       yearly_payment: yearlyPayment.toFixed(2),
+      claimable_amount: claimableAmount.toFixed(2)
     });
 
   } catch (err) {
