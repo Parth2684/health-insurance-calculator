@@ -1,33 +1,38 @@
 import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { Shield } from 'lucide-react';
 
 export const Header: React.FC = () => {
+  const location = useLocation();
+  
+  const isActive = (path: string) => {
+    return location.pathname === path ? 'text-blue-600' : 'text-gray-600 hover:text-blue-600';
+  };
+
   return (
-    <header className="bg-white shadow-sm py-4">
+    <header className="bg-white shadow-sm py-4 sticky top-0 z-50">
       <div className="container mx-auto px-4 flex items-center justify-between">
-        <div className="flex items-center space-x-2">
+        <Link to="/" className="flex items-center space-x-2">
           <Shield className="h-8 w-8 text-blue-600" />
           <span className="text-xl font-bold bg-gradient-to-r from-blue-700 to-teal-500 bg-clip-text text-transparent">
             InsureGuard
           </span>
-        </div>
+        </Link>
+        
         <nav className="hidden md:flex items-center space-x-8">
-          <a href="#" className="text-gray-600 hover:text-blue-600 transition-colors">
+          <Link to="/" className={`transition-colors ${isActive('/')}`}>
             Home
-          </a>
-          <a href="#" className="text-gray-600 hover:text-blue-600 transition-colors">
+          </Link>
+          <Link to="/about" className={`transition-colors ${isActive('/about')}`}>
             About
-          </a>
-          <a href="#" className="text-gray-600 hover:text-blue-600 transition-colors">
+          </Link>
+          <Link to="/services" className={`transition-colors ${isActive('/services')}`}>
             Services
-          </a>
-          <a href="#" className="text-gray-600 hover:text-blue-600 transition-colors">
+          </Link>
+          <Link to="/contact" className={`transition-colors ${isActive('/contact')}`}>
             Contact
-          </a>
+          </Link>
         </nav>
-        <button className="hidden md:block bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors">
-          Get a Quote
-        </button>
       </div>
     </header>
   );
